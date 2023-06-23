@@ -333,16 +333,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d"
 
 [[package]]
-name = "mktemp"
-version = "0.1.0"
-dependencies = [
- "clap",
- "configparser",
- "rand",
- "serial_test",
-]
-
-[[package]]
 name = "once_cell"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -540,6 +530,16 @@ name = "wasi"
 version = "0.11.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
+
+[[package]]
+name = "windows-mktemp"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "configparser",
+ "rand",
+ "serial_test",
+]
 
 [[package]]
 name = "windows-sys"
