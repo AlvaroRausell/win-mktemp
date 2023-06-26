@@ -4,15 +4,23 @@ use std::{env, fs::File, io::Read, path::Path};
 #[derive(Debug, PartialEq)]
 pub struct Properties {
     pub lifespan_amount: u64,
-    pub lifespan_unit: String,
+    pub lifespan_unit: LifespanUnit,
     pub tmp_path: String,
+    pub records_file_path: String
+}
+#[derive(Debug, PartialEq)]
+pub enum LifespanUnit {
+    day,
+    hour,
+    minute
 }
 impl Default for Properties {
     fn default() -> Self {
         Properties {
             lifespan_amount: 1,
-            lifespan_unit: String::from("day"),
+            lifespan_unit: LifespanUnit::day,
             tmp_path: String::from("/tmp"),
+            records_file_path: String::from(env::current_exe().unwrap().parent().unwrap().join("records.json").to_str().unwrap())
         }
     }
 }
@@ -28,17 +36,31 @@ pub fn parse_config_data() -> Properties {
                     .getuint("service", "lifespan_amount")
                     .unwrap_or_default()
                     .unwrap_or_default(),
-                lifespan_unit: ini
+                lifespan_unit: match ini
                     .get("service", "lifespan_unit")
-                    .unwrap_or_else(|| Properties::default().lifespan_unit),
+                    .unwrap().as_str() {
+                        "day" => LifespanUnit::day,
+                        "hour" => LifespanUnit::hour,
+                        "minute" => LifespanUnit::minute,
+                        _ => Properties::default().lifespan_unit
+                    },
                 tmp_path: ini
-                    .get("properties", "tmp_path")
-                    .unwrap_or_else(|| Properties::default().tmp_path),
+                .get("properties", "tmp_path")
+                .unwrap_or_else(|| Properties::default().tmp_path),
+                records_file_path: ini
+                .get("properties", "records_file_path")
+                .unwrap_or_else(|| Properties::default().records_file_path),
             }
         }
     };
 }
-
+pub fn lifespan_to_millis(amount: u64, unit: LifespanUnit) -> u64 {
+    match unit {
+        LifespanUnit::day => amount * 86400000,
+        LifespanUnit::hour => amount * 3600 * 1000,
+        LifespanUnit::minute => amount * 60 * 1000
+    }
+}
 fn get_config_data() -> Option<String> {
     // Check config dir
     let mut contents = String::new();
@@ -104,6 +126,7 @@ mod tests {
     #[test]
     #[serial] // Needed as we cannot be messing with env vars in parallel!
     fn parse_config_data_returns_default() {
+        env::remove_var("MKTEMP_CONFIG_DIR");
         assert_eq!(parse_config_data(), Properties::default())
     }
     #[test]
@@ -115,8 +138,9 @@ mod tests {
             parse_config_data(),
             Properties {
                 lifespan_amount: 2,
-                lifespan_unit: String::from("min"),
-                tmp_path: Properties::default().tmp_path
+                lifespan_unit: LifespanUnit::minute,
+                tmp_path: Properties::default().tmp_path,
+                records_file_path: Properties::default().records_file_path
             }
         )
     }

@@ -5,14 +5,14 @@ use std::{
 };
 
 fn mktemp_base(base_dir: &Path) -> PathBuf {
-    if (!base_dir.exists()) {
+    if !base_dir.exists() {
         println!(
             "Base directory {} does not exist, creating...",
             base_dir.to_str().unwrap()
         );
         fs::create_dir_all(base_dir).unwrap();
     }
-    let mut rng = thread_rng();
+    let rng = thread_rng();
     let target_name: String = rng
         .sample_iter(&Alphanumeric)
         .take(7)

@@ -1,5 +1,5 @@
 [package]
-name = "windows-mktemp"
+name = "win_mktemp"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,7 +10,15 @@ configparser = "^3.0.2"
 "serial_test" = "^2.0.0"
 rand = "^0.8.5"
 clap = { version = "4.3.5", features = ["derive"] }
+serde = "1.0.164"
+serde_derive = "1.0.164"
+serde_json = "1.0.99"
+chrono = "0.4.26"
+ctrlc = "3.4.0"
 
 [[bin]]
 name = "mktemp"
-path = "src/mktemp.rs"
+path = "src/win_mktemp.rs"
+[[bin]]
+name = "mktemp-service"
+path = "src/service.rs"
